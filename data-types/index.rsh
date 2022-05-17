@@ -29,7 +29,7 @@ export const main = Reach.App(() => {
   const Deployer = Participant('Deployer', {
     deployed: Fun([], Null),
 
-    // UInt is an unsigned (positive) integer. It's size depends on the 
+    // UInt is an unsigned (positive) integer. Its size depends on the 
     // blockchain. It makes more sense to use positive integers while handling
     // money inside the contract 
     seeUInt: Fun([UInt], Null),
