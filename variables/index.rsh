@@ -1,17 +1,16 @@
 'reach 0.1';
 
-// In Reach, only constants are used throughout the program. Even though this
+// In Reach, only constants are used* throughout the program. Even though this
 // might seem like a limitation it is possible to do any iterative operation
 // with constants using map, reduce and forEach
-
-// There's one exception to this rule and it is var usage in while loops.
+// * (Only exception to this rule is the var usage in while loops)
 
 /*
   For example a Javascript code like this
-
+  
   const arr = [1,2,3,4]
   let sum = 0
-  for (const item of array) {
+  for (const item of arr) {
     sum += item;
   } 
 
@@ -19,8 +18,8 @@
 
   const arr = array(UInt, [1,2,3,4]);
   const sum = array.reduce(0, (prev, val) => prev + val);
-*/
-
+  */
+ 
 // You can define constants outside the application
 const MAX_UINT = UInt.max;
 
