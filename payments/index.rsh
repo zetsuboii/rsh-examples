@@ -69,6 +69,8 @@ export const main = Reach.App(() => {
     const tokenAmount = declassify(interact.payNonNetworkToken());
     const USDC = declassify(interact.getUSDC());
   });
+  Payer.publish(tokenAmount, USDC);
+  commit();
 
   // While paying non-network tokens, we have to use a array of tuples where
   // each tuple has (<token>, <amount of the token>) format.
@@ -78,7 +80,8 @@ export const main = Reach.App(() => {
   // ```
   // It is also possible to combine different payments inside a single 
   // expression. If we want to pay 100 ALGOs, 200 USDCs and 300 WBTCs we can
-  // write
+  // write:
+  // 
   // ```reach
   // const Payer = Participant('Payer', { 
   //   getTokens: Fun([], Tuple(Token, Token))
@@ -87,12 +90,41 @@ export const main = Reach.App(() => {
   // Payer.only(() => {
   //   const [USDC, WBTC] = declassify(interact.getTokens())
   // });
+  // Payer.publish(USDC, WBTC);
+  // commit();
+  //
   // Payer.pay([ 100, [200, USDC], [300, WBTC] ])
   // ```
-  Payer.publish(USDC, tokenAmount).pay([ [tokenAmount, USDC] ]);
+  // Note that .publish(USDC).pay([ [1, USDC] ]) won't work on Algorand as 
+  // contract needs to optin to the token before it can receive it.
+  Payer.pay([ [tokenAmount, USDC] ]);
 
   // You can use the .transfer().to() syntax for tokens transfers as well
   transfer([ [tokenAmount, USDC] ]).to(Payer);
+  commit();
+
+  Payer.only(() => {
+    const WBTC = declassify(interact.getWBTC());
+    // Reach checks that each token in the contract is unique
+    check(distinct(WBTC, USDC));
+
+    const [ algoAmt, usdcAmt, wbtcAmt ] = declassify(interact.payCombination());
+  });
+  Payer.publish(WBTC, algoAmt, usdcAmt, wbtcAmt)
+  check(distinct(WBTC, USDC));
+  commit();
+
+  Payer.pay([ algoAmt, [usdcAmt, USDC], [wbtcAmt, WBTC] ]);
+
+  // Reach contract check your code for some base assumptions, one of them
+  // being no funds are stuck in the contract when it finishes. So to get our
+  // code compile, we can send all funds on the contract to the Payer back
+
+  // balance() returns the contract's network token balance
+  transfer(balance()).to(Payer);
+
+  // balance(token) returns contract's balance of given token
+  transfer([ [balance(USDC), USDC], [balance(WBTC), WBTC] ]).to(Payer);
 
   commit();
   exit();
