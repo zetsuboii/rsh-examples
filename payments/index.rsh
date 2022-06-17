@@ -37,6 +37,13 @@ const PayerInterface = {
 export const main = Reach.App(() => {
   const Payer = Participant('Payer', PayerInterface);
   init();
+
+  // You can use .pay() to get payment from the participant
+  Payer.pay(1);
+
+  // You can then the funds on the contract using transfer().to();
+  transfer(1).to(Payer);
+  commit();
   
   Payer.only(() => {
     // Get how many network tokens user wants to pay
@@ -83,6 +90,10 @@ export const main = Reach.App(() => {
   // Payer.pay([ 100, [200, USDC], [300, WBTC] ])
   // ```
   Payer.publish(USDC, tokenAmount).pay([ [tokenAmount, USDC] ]);
+
+  // You can use the .transfer().to() syntax for tokens transfers as well
+  transfer([ [tokenAmount, USDC] ]).to(Payer);
+
   commit();
   exit();
 });
